@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>性格二次元チャート診断</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink-bg: #f5e1e1;
+            --green-bg: #e1f0eb;
+            --gray-bg: #e8e5e0;
+            --orange-bg: #f5ebe1;
+            --primary-text: #3d3d3d;
+            --accent-red: #c75c5c;
+            --accent-green: #5c9c8a;
+            --accent-blue: #5c7c9c;
+            --marker-color: #e63946;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #faf8f5 0%, #f0ebe3 100%);
+            color: var(--primary-text);
+            min-height: 100vh;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-text);
+            margin-bottom: 15px;
+            letter-spacing: 0.1em;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .progress-container {
+            background: #e0dcd5;
+            border-radius: 20px;
+            height: 8px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+            border-radius: 20px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        /* Questionnaire Styles */
+        .questionnaire {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+
+        .question-group {
+            margin-bottom: 35px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .question-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-right: 12px;
+        }
+
+        .question-text {
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: var(--primary-text);
+            margin-bottom: 20px;
+            display: inline;
+        }
+
+        .options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .option-label {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .option-label input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .option-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f8f7f5;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .option-btn:hover {
+            background: #f0ebe3;
+            transform: translateY(-2px);
+        }
+
+        .option-label input:checked + .option-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+            transform: scale(1.05);
+        }
+
+        .option-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .option-text {
+            font-size: 0.7rem;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        /* Submit Button */
+        .submit-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 60px;
+            font-size: 1.1rem;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-weight: 500;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Results Section */
+        .results {
+            display: none;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .results-header h2 {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            aspect-ratio: 1;
+        }
+
+        .chart {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .quadrant {
+            position: relative;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quadrant-tl {
+            background: var(--pink-bg);
+        }
+
+        .quadrant-tr {
+            background: var(--green-bg);
+        }
+
+        .quadrant-bl {
+            background: var(--gray-bg);
+        }
+
+        .quadrant-br {
+            background: var(--orange-bg);
+        }
+
+        .quadrant-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .quadrant-title {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .quadrant-desc {
+            font-size: 0.7rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Axis Labels */
+        .axis-label {
+            position: absolute;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--primary-text);
+            z-index: 10;
+        }
+
+        .axis-label-top {
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .axis-label-bottom {
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .axis-label-left {
+            left: -45px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .axis-label-right {
+            right: -45px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .axis-subtitle {
+            font-size: 0.65rem;
+            font-weight: 400;
+            color: #888;
+            display: block;
+            text-align: center;
+        }
+
+        /* Axis Lines */
+        .axis-line-h, .axis-line-v {
+            position: absolute;
+            background: #555;
+            z-index: 5;
+        }
+
+        .axis-line-h {
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 2px;
+            transform: translateY(-50%);
+        }
+
+        .axis-line-v {
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            transform: translateX(-50%);
+        }
+
+        .axis-arrow {
+            position: absolute;
+            z-index: 6;
+        }
+
+        .axis-arrow-right {
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 8px solid transparent;
+            border-left: 12px solid #555;
+        }
+
+        .axis-arrow-top {
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-bottom: 12px solid #555;
+        }
+
+        /* Result Marker */
+        .result-marker {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: var(--marker-color);
+            border: 4px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            box-shadow: 0 4px 15px rgba(230, 57, 70, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(230, 57, 70, 0.5);
+            }
+            50% {
+                box-shadow: 0 4px 25px rgba(230, 57, 70, 0.8);
+            }
+        }
+
+        .result-marker::after {
+            content: 'あなた';
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--marker-color);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* Score Display */
+        .score-display {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .score-item {
+            text-align: center;
+            background: #f8f7f5;
+            padding: 20px 30px;
+            border-radius: 15px;
+        }
+
+        .score-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .score-value {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-text);
+        }
+
+        /* Type Description */
+        .type-description {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .type-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .type-icon {
+            font-size: 3rem;
+        }
+
+        .type-name {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .type-subtitle {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .traits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .trait-item {
+            background: #f8f7f5;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Retry Button */
+        .retry-btn {
+            display: block;
+            margin: 30px auto 0;
+            background: transparent;
+            color: var(--accent-blue);
+            border: 2px solid var(--accent-blue);
+            padding: 14px 40px;
+            font-size: 1rem;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .retry-btn:hover {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .questionnaire {
+                padding: 25px 20px;
+            }
+
+            .options {
+                gap: 8px;
+            }
+
+            .option-btn {
+                min-width: 60px;
+                padding: 10px 12px;
+            }
+
+            .option-value {
+                font-size: 1rem;
+            }
+
+            .option-text {
+                font-size: 0.6rem;
+            }
+
+            .chart-wrapper {
+                max-width: 100%;
+            }
+
+            .quadrant {
+                padding: 12px;
+            }
+
+            .quadrant-icon {
+                font-size: 1.8rem;
+            }
+
+            .quadrant-title {
+                font-size: 0.85rem;
+            }
+
+            .quadrant-desc {
+                font-size: 0.6rem;
+            }
+
+            .axis-label {
+                font-size: 0.85rem;
+            }
+
+            .axis-label-left {
+                left: -35px;
+            }
+
+            .axis-label-right {
+                right: -35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>性格二次元チャート</h1>
+            <p class="subtitle">20問の質問に答えて、あなたの思考スタイルと世界観を診断します</p>
+        </header>
+
+        <div id="quiz-section">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <p class="progress-text"><span id="answered-count">0</span> / 20 問回答済み</p>
+
+            <div class="questionnaire" id="questionnaire">
+                <!-- Questions will be inserted here by JavaScript -->
+            </div>
+
+            <div class="submit-container">
+                <button class="submit-btn" id="submit-btn" disabled onclick="showResults()">診断結果を見る</button>
+            </div>
+        </div>
+
+        <div class="results" id="results-section">
+            <div class="results-header">
+                <h2>あなたの診断結果</h2>
+                <p>チャート上のマーカーがあなたの位置を示しています</p>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <div class="axis-label axis-label-top">
+                        🐑 ヒツジ
+                        <span class="axis-subtitle">「世界は基本的に安全」</span>
+                    </div>
+                    <div class="axis-label axis-label-bottom">
+                        🐺 オオカミ
+                        <span class="axis-subtitle">「恩恵は有限・安全は条件付き」</span>
+                    </div>
+                    <div class="axis-label axis-label-left">
+                        🦜 オウム
+                        <span class="axis-subtitle">模倣・共鳴</span>
+                    </div>
+                    <div class="axis-label axis-label-right">
+                        🧠 人間
+                        <span class="axis-subtitle">論理・構築</span>
+                    </div>
+
+                    <div class="chart">
+                        <div class="quadrant quadrant-tl">
+                            <div class="quadrant-icon">🦜🐑</div>
+                            <div class="quadrant-title">オウム×ヒツジ</div>
+                            <div class="quadrant-desc">協調性が高く、人に安心感を与える。指示に忠実だが、自分の意見が形成されにくい面も。</div>
+                        </div>
+                        <div class="quadrant quadrant-tr">
+                            <div class="quadrant-icon">🧠🐑</div>
+                            <div class="quadrant-title">人間×ヒツジ</div>
+                            <div class="quadrant-desc">説明上手で合理的・穏健。制度設計や教育が得意だが、想定外の状況に弱い面も。</div>
+                        </div>
+                        <div class="quadrant quadrant-bl">
+                            <div class="quadrant-icon">🦜🐺</div>
+                            <div class="quadrant-title">オウム×オオカミ</div>
+                            <div class="quadrant-desc">生存能力が高く、有利な側に味方する。説得・煽動がうまいが、一貫性に欠ける面も。</div>
+                        </div>
+                        <div class="quadrant quadrant-br">
+                            <div class="quadrant-icon">🧠🐺</div>
+                            <div class="quadrant-title">人間×オオカミ</div>
+                            <div class="quadrant-desc">状況判断が的確で危機管理能力が高い。自立性があるが、冷たく見られがちな面も。</div>
+                        </div>
+                        <div class="axis-line-h"></div>
+                        <div class="axis-line-v"></div>
+                        <div class="axis-arrow axis-arrow-right"></div>
+                        <div class="axis-arrow axis-arrow-top"></div>
+                        <div class="result-marker" id="result-marker"></div>
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    <div class="score-item">
+                        <div class="score-label">X軸スコア（オウム ↔ 人間）</div>
+                        <div class="score-value" id="x-score">0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Y軸スコア（オオカミ ↔ ヒツジ）</div>
+                        <div class="score-value" id="y-score">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="type-description" id="type-description">
+                <!-- Type description will be inserted here -->
+            </div>
+
+            <button class="retry-btn" onclick="resetQuiz()">もう一度診断する</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // X軸：人間（論理）寄り Q1-Q5 (高いほど +X)
+            { id: 1, text: "物事を説明するとき、感覚よりも理由や因果関係を重視する", axis: "x", direction: 1 },
+            { id: 2, text: "誰かの意見に賛成するときは、自分なりに筋が通っているかを確認する", axis: "x", direction: 1 },
+            { id: 3, text: "「なぜそうなるのか」を理解しないと納得できないことが多い", axis: "x", direction: 1 },
+            { id: 4, text: "言葉は感情よりも意味の正確さが重要だと思う", axis: "x", direction: 1 },
+            { id: 5, text: "議論では雰囲気よりも論点の整理を優先する", axis: "x", direction: 1 },
+            // X軸：オウム（模倣）寄り Q6-Q10 (高いほど -X)
+            { id: 6, text: "その場の空気に合った言い回しを自然に使うことが多い", axis: "x", direction: -1 },
+            { id: 7, text: "印象に残った言葉を、深く考えずに使うことがある", axis: "x", direction: -1 },
+            { id: 8, text: "言っている内容より「誰が言ったか」が重要だと感じることがある", axis: "x", direction: -1 },
+            { id: 9, text: "理屈がよく分からなくても、しっくり来れば受け入れる", axis: "x", direction: -1 },
+            { id: 10, text: "話の正確さよりも、共感されるかどうかを重視する", axis: "x", direction: -1 },
+            // Y軸：ヒツジ（楽観）寄り Q11-Q15 (高いほど +Y)
+            { id: 11, text: "基本的に、人は善意で行動していると思う", axis: "y", direction: 1 },
+            { id: 12, text: "社会は大きく見れば安定していると感じる", axis: "y", direction: 1 },
+            { id: 13, text: "困ったときは、誰かが助けてくれることが多いと思う", axis: "y", direction: 1 },
+            { id: 14, text: "今の生活水準は、今後も大きく変わらない気がする", axis: "y", direction: 1 },
+            { id: 15, text: "大きなリスクを取らなくても、普通に生きていけると思う", axis: "y", direction: 1 },
+            // Y軸：オオカミ（現実）寄り Q16-Q20 (高いほど -Y)
+            { id: 16, text: "安全や信頼は、努力し続けないと簡単に失われると思う", axis: "y", direction: -1 },
+            { id: 17, text: "社会的な恩恵は条件付きだと感じる", axis: "y", direction: -1 },
+            { id: 18, text: "「最悪の事態」を常にある程度想定して行動している", axis: "y", direction: -1 },
+            { id: 19, text: "何もせずに守られる状況は、長くは続かないと思う", axis: "y", direction: -1 },
+            { id: 20, text: "挑戦しないこと自体がリスクになることが多いと思う", axis: "y", direction: -1 }
+        ];
+
+        const optionLabels = [
+            { value: 1, text: "全くそう<br>思わない" },
+            { value: 2, text: "あまりそう<br>思わない" },
+            { value: 3, text: "どちらとも<br>言えない" },
+            { value: 4, text: "ややそう<br>思う" },
+            { value: 5, text: "非常にそう<br>思う" }
+        ];
+
+        const typeDescriptions = {
+            "parrot-sheep": {
+                icon: "🦜🐑",
+                name: "オウム × ヒツジ タイプ",
+                subtitle: "協調的な共感者",
+                traits: [
+                    "協調性が高い",
+                    "人に安心感を与える",
+                    "指示やマニュアルに忠実",
+                    "騙されやすい面がある",
+                    "自分の意見が形成されにくい",
+                    "危機対応が遅い",
+                    "「誰かが何とかしてくれる」思考"
+                ]
+            },
+            "human-sheep": {
+                icon: "🧠🐑",
+                name: "人間 × ヒツジ タイプ",
+                subtitle: "合理的な楽観主義者",
+                traits: [
+                    "説明がうまい",
+                    "合理的・穏健",
+                    "制度設計・改善が得意",
+                    "教育・啓蒙が上手",
+                    "想定外の状況に弱い",
+                    "現場感覚に欠ける",
+                    "悪意を過小評価しがち"
+                ]
+            },
+            "parrot-wolf": {
+                icon: "🦜🐺",
+                name: "オウム × オオカミ タイプ",
+                subtitle: "適応力の高いサバイバー",
+                traits: [
+                    "生存能力が高い",
+                    "有利な側に味方する",
+                    "説得・煽動がうまい",
+                    "実利的",
+                    "一貫性がない",
+                    "信頼されにくい",
+                    "思想が浅い・強者に依存"
+                ]
+            },
+            "human-wolf": {
+                icon: "🧠🐺",
+                name: "人間 × オオカミ タイプ",
+                subtitle: "自立した戦略家",
+                traits: [
+                    "状況判断が的確",
+                    "危機管理能力が高い",
+                    "自立性がある",
+                    "長期戦略を描ける",
+                    "疲れやすい",
+                    "楽観的な人と合わない",
+                    "冷たく見られがち・孤立しやすい"
+                ]
+            }
+        };
+
+        let answers = {};
+
+        function initQuiz() {
+            const container = document.getElementById('questionnaire');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const questionHTML = `
+                    <div class="question-group" style="animation-delay: ${index * 0.05}s">
+                        <span class="question-number">Q${q.id}</span>
+                        <span class="question-text">${q.text}</span>
+                        <div class="options">
+                            ${optionLabels.map(opt => `
+                                <label class="option-label">
+                                    <input type="radio" name="q${q.id}" value="${opt.value}" onchange="updateAnswer(${q.id}, ${opt.value})">
+                                    <div class="option-btn">
+                                        <span class="option-value">${opt.value}</span>
+                                        <span class="option-text">${opt.text}</span>
+                                    </div>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += questionHTML;
+            });
+        }
+
+        function updateAnswer(questionId, value) {
+            answers[questionId] = value;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answeredCount = Object.keys(answers).length;
+            const percentage = (answeredCount / 20) * 100;
+            
+            document.getElementById('progress-bar').style.width = percentage + '%';
+            document.getElementById('answered-count').textContent = answeredCount;
+            
+            document.getElementById('submit-btn').disabled = answeredCount < 20;
+        }
+
+        function calculateScores() {
+            // X軸計算: (Q1+Q2+Q3+Q4+Q5) - (Q6+Q7+Q8+Q9+Q10)
+            const xPositive = (answers[1] || 3) + (answers[2] || 3) + (answers[3] || 3) + (answers[4] || 3) + (answers[5] || 3);
+            const xNegative = (answers[6] || 3) + (answers[7] || 3) + (answers[8] || 3) + (answers[9] || 3) + (answers[10] || 3);
+            const xScore = xPositive - xNegative;
+
+            // Y軸計算: (Q11+Q12+Q13+Q14+Q15) - (Q16+Q17+Q18+Q19+Q20)
+            const yPositive = (answers[11] || 3) + (answers[12] || 3) + (answers[13] || 3) + (answers[14] || 3) + (answers[15] || 3);
+            const yNegative = (answers[16] || 3) + (answers[17] || 3) + (answers[18] || 3) + (answers[19] || 3) + (answers[20] || 3);
+            const yScore = yPositive - yNegative;
+
+            return { x: xScore, y: yScore };
+        }
+
+        function getPersonalityType(x, y) {
+            if (x < 0 && y >= 0) return "parrot-sheep";
+            if (x >= 0 && y >= 0) return "human-sheep";
+            if (x < 0 && y < 0) return "parrot-wolf";
+            return "human-wolf";
+        }
+
+        function showResults() {
+            const scores = calculateScores();
+            const type = getPersonalityType(scores.x, scores.y);
+            const typeInfo = typeDescriptions[type];
+
+            // Hide quiz, show results
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('results-section').style.display = 'block';
+
+            // Update scores display
+            document.getElementById('x-score').textContent = (scores.x > 0 ? '+' : '') + scores.x;
+            document.getElementById('y-score').textContent = (scores.y > 0 ? '+' : '') + scores.y;
+
+            // Position the marker (convert -20 to +20 range to percentage)
+            const xPercent = ((scores.x + 20) / 40) * 100;
+            const yPercent = 100 - ((scores.y + 20) / 40) * 100; // Invert Y for CSS
+
+            const marker = document.getElementById('result-marker');
+            marker.style.left = xPercent + '%';
+            marker.style.top = yPercent + '%';
+
+            // Update type description
+            const typeContainer = document.getElementById('type-description');
+            typeContainer.innerHTML = `
+                <div class="type-header">
+                    <div class="type-icon">${typeInfo.icon}</div>
+                    <div>
+                        <div class="type-name">${typeInfo.name}</div>
+                        <div class="type-subtitle">${typeInfo.subtitle}</div>
+                    </div>
+                </div>
+                <div class="traits-list">
+                    ${typeInfo.traits.map(trait => `<div class="trait-item">• ${trait}</div>`).join('')}
+                </div>
+            `;
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            answers = {};
+            document.getElementById('quiz-section').style.display = 'block';
+            document.getElementById('results-section').style.display = 'none';
+            
+            // Reset all radio buttons
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize on load
+        initQuiz();
+    </script>
+</body>
+</html>
